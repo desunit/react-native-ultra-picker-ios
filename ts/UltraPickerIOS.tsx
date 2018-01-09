@@ -40,6 +40,7 @@ export interface ComponentGroup {
 
 export interface ComponentItemProps {
     label: string,
+    label2: string,
     value?: any,
     selected?: boolean,
     fontFamily?: string,
@@ -119,6 +120,7 @@ export class UltraPickerIOS extends React.Component<UltraPickerIOSProps, UltraPi
                         if (item.type === Item && item.props.label) {
                             const nativeItem: ComponentItemProps = {
                                 label: item.props.label,
+                                label2 : item.props.label2,
                                 fontFamily: item.props.fontFamily,
                                 fontSize: item.props.fontSize,
                                 value: (item.props.value || null)

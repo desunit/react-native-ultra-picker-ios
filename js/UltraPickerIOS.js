@@ -101,6 +101,7 @@ var UltraPickerIOS = /** @class */ (function (_super) {
                         if (item.type === Item && item.props.label) {
                             var nativeItem = {
                                 label: item.props.label,
+                                label2: item.props.label2,
                                 fontFamily: item.props.fontFamily,
                                 fontSize: item.props.fontSize,
                                 value: (item.props.value || null)

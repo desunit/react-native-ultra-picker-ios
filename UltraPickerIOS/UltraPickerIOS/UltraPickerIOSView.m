@@ -22,6 +22,9 @@ NSString const *UIPickerDefaultFontFamily = @"HelveticaNeue";
     if (componentsData != _componentsData) {
         _componentsData = [componentsData copy];
         [self setNeedsLayout];
+        
+        if (_selectedIndexes)
+            [self setSelectedIndexes:_selectedIndexes];
     }
 }
 
@@ -70,17 +73,18 @@ NSString const *UIPickerDefaultFontFamily = @"HelveticaNeue";
     }
 }
 
--(UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view {
-    
-    UILabel *displayLabel;
-    
-    if (view) {
-        displayLabel = (UILabel *)view;
-    }else {
-        displayLabel = [UILabel new];
-        displayLabel.textAlignment = NSTextAlignmentCenter;
+- (NSString *)labelForRow2:(NSInteger)row forComponent:(NSInteger)component
+{
+    NSString *text = [[[[self.componentsData objectAtIndex:component] valueForKey:@"items"] objectAtIndex:row] valueForKey:@"label2"];
+    if (!text) {
+        return @"";
+    } else {
+        return text;
     }
-    
+}
+
+-(void)initLabel:(UILabel*)label forRow:(NSInteger)row forComponent:(NSInteger)component
+{
     NSString *fontName;
     NSInteger fontSize;
     UIFont *font = nil;
@@ -100,14 +104,51 @@ NSString const *UIPickerDefaultFontFamily = @"HelveticaNeue";
     }
     
     font = [UIFont fontWithName:fontName size:fontSize];
-
+    
     if (font) {
-        displayLabel.font = font;
+        label.font = font;
+    }
+    
+    [label setAutoresizingMask: UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleHeight];
+}
+
+-(UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view {
+    
+    UILabel *displayLabel;
+    UILabel *displayLabel2;
+    UIView *returnLabel;
+    
+    NSString *label2 = [self labelForRow2:row forComponent:component];
+    
+    if (view) {
+        UIView *returnLabel = (UIView *)view;
+
+        displayLabel = (UILabel *)[returnLabel.subviews objectAtIndex:0];
+        if (label2)
+            displayLabel2 = (UILabel *)[returnLabel.subviews objectAtIndex:1];
+    }else {
+        returnLabel = [[UIView alloc] initWithFrame:CGRectMake(0, 0, pickerView.frame.size.width, 30)];
+        [returnLabel setAutoresizingMask: UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleHeight];
+
+        displayLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, pickerView.frame.size.width / 3, 30)];
+        [returnLabel addSubview:displayLabel];
+        
+        if (label2) {
+            displayLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(displayLabel.frame.size.width + 10, 0, (pickerView.frame.size.width / 3) * 2, 30)];
+            [returnLabel addSubview:displayLabel2];
+        }
+        [self initLabel:displayLabel forRow:row forComponent:component];
+        [self initLabel:displayLabel2 forRow:row forComponent:component];
+        
+        displayLabel.textAlignment = NSTextAlignmentRight;
+        displayLabel2.textAlignment = NSTextAlignmentLeft;
     }
     
     displayLabel.text = [self labelForRow:row forComponent:component];
-    
-    return displayLabel;
+    if (label2)
+        displayLabel2.text = [self labelForRow2:row forComponent:component];
+
+    return returnLabel;
 }
 
 - (NSString *)valueForRow:(NSInteger)row forComponent:(NSInteger)component
